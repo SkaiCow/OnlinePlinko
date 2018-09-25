@@ -1,0 +1,17 @@
+body
+{
+	background-color: rgb(125, 216, 196);
+}
+.chat-container
+{
+	background-color: rgba(0,0,0,.3);
+	color: white;
+	width:75vh;
+	height: 50vh;
+	overflow-y: scroll;
+}
+.chat-input
+{
+	width: 75vh;
+	height: 3vh;
+}
