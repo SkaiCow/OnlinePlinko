@@ -1,6 +1,7 @@
 body
 {
 	background-color: rgb(125, 216, 196);
+	overflow: hidden;
 }
 .chat-container
 {

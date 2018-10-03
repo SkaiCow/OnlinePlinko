@@ -4,6 +4,11 @@ io.on('connect', function(){
 	console.log("hey i have connected to the server");
 });
 
+io.on('physics', function(msg)
+{
+	loadOtherBalls();
+});
+/*
 io.on('system', function(msg)
 {
 	console.log(msg);
@@ -26,4 +31,4 @@ $(document).on('change', '.chat-input', function() {
 	}
 
 	$(this).val("");
-});
+});*/
