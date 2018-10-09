@@ -1,12 +1,25 @@
 var color = [50,0,0];
 
+var clients = [];
+
 module.exports = class SystemManager
 {
+	static addConnection(connection)
+	{
+		clients.push(connection);
+	}
+
+	static getAllUsers()
+	{
+		return clients;
+	}
+
 	static updateUser(client)
 	{
 		var obj = {BackColor : color};
 		client.emit('system', obj);
 	}
+
 	static changeBackColor(values)
 	{
 		values = values.split(",");

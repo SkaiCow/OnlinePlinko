@@ -2,6 +2,7 @@
 SocialManager = require("./managers/SocialManager");
 MessangerManager = require("./managers/MessangerManager");
 SystemManager = require("./managers/SystemManager");
+GameManager = require("./managers/GameManager");
 
 var http = require('http');
 var Express = require('express');
@@ -38,12 +39,19 @@ server.listen(80, function()
 
 io = require('socket.io')(server);
 
+var balls = [{x:0,y:-350,velocityX:0,velocityY:0}];
+setInterval(function(){
+	balls[0].x = balls[0].x + 5;
+	io.emit('physics',balls);
+}, 1000);
+
 io.on('connection', function(client)
 {
   console.log('Connection accepted.');
-	MessangerManager.addConnection(client);
+	SystemManager.addConnection(client);
 	SystemManager.updateUser(client);
-		//handle how messages come in
+	//handle how messages come in
+
 	client.on('message', function(msg)
 	{
    	//send messages to where they need to be
@@ -58,8 +66,10 @@ io.on('connection', function(client)
 			case '/backcolor': SystemManager.changeBackColor(command[1]);
 			break;
 		}
-	})
-
+	});
+	client.on('physics',function(msg){
+		GameManager.updateMyBalls(client,msg);
+	});
 
   client.on('close', function(reasonCode, description)
 	{

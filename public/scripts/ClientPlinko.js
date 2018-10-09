@@ -1,7 +1,13 @@
 var lastWindowHeight;
 
-var balls;
+//this variable gets updated by the server
+var serverBalls = [];
+
+//groups of sprites that are your balls and other peoples balls
+var yourBalls;
 var theirBalls;
+
+//singal map elements that probably dont need to be here.
 var pegs;
 var pockets;
 var dropStart;
@@ -11,17 +17,16 @@ var lastDrop = [];
 
 function preload()
 {
-
+	yourBalls = new Group();
+	theirBalls = new Group();
+	pegs = new Group();
+	pockets = new Group();
 }
 
 function setup()
 {
 	createCanvas(windowWidth, windowHeight);
 	lastWindowHeight = windowHeight;
-
-	balls = new Group();
-	pegs = new Group();
-	pockets = new Group();
 
 	var backBoard = createSprite(8,0,1065,815);
 	backBoard.shapeColor = color(50, 200, 100);
@@ -84,30 +89,53 @@ function draw()
 {
 	background(75, 75, 75);
 
-	for(var i=0; i<balls.length; i++)
+	for(var i=0; i<yourBalls.length; i++)
 	{
-		balls.get(i).addSpeed(.1,90);
+		yourBalls.get(i).addSpeed(.1,90);
 	}
-	balls.bounce(pegs);
-	balls.bounce(balls);
-	balls.bounce(pockets);
-	balls.overlap(dropEnd,function(){this.remove()});
+	for(var i=0; i<theirBalls.length; i++)
+	{
+		theirBalls.get(i).addSpeed(.1,90);
+	}
+
+	yourBalls.bounce(pegs);
+	yourBalls.bounce(yourBalls);
+	yourBalls.bounce(pockets);
+	yourBalls.overlap(dropEnd,function(){
+		this.remove();
+	});
+	theirBalls.bounce(pegs);
+	theirBalls.bounce(yourBalls);
+	theirBalls.bounce(pockets);
+	theirBalls.overlap(dropEnd,function(){
+		this.remove();
+	});
 	drawSprites();
 }
 
-function loadOtherBalls(otherBalls)
+function addball(x,y,velocityX,velocityY)
 {
-	for(var i=0; i<otherBalls; i=i+4)
+	var ball = createSprite(x,y,50,50);
+	ball.addImage(loadImage("/images/ball.png"));
+	ball.scale = .1;
+	ball.mass = ball.scale;
+	ball.restitution = .74;
+	ball.setCollider('circle', 0, 0, 120);
+	ball.setVelocity(velocityX,velocityY);
+	//ball.debug = true;
+	theirBalls.add(ball);
+}
+
+function loadOtherBalls(balls)
+{
+	serverBalls = balls;
+	while(theirBalls[0] !== undefined)
 	{
-		var ball = createSprite(otherBalls[i],otherBalls[i+1],50,50);
-		ball.addImage(loadImage("/images/ball.png"));
-		ball.scale = .1;
-		ball.mass = ball.scale;
-		ball.restitution = .74;
-		ball.setCollider('circle', 0, 0, 120);
-		ball.setVelocity(otherBalls[i+2],otherBalls[i+3]);
-		//ball.debug = true;
-		theirBalls.add(ball);
+    theirBalls[0].remove();
+	}
+	for(var i=0; i<serverBalls.length; i++)
+	{
+		addball(serverBalls[i].x,serverBalls[i].y,serverBalls[i].velocityX,serverBalls[i].velocityY);
 	}
 }
 
@@ -129,13 +157,10 @@ function checkForDrop()
 			}
 		}
 	}
-
-
 }
 
 function dropBall()
 {
-	console.log("fuck");
 	var ball = createSprite((camera.mouseX/camera.zoom),(camera.mouseY/camera.zoom),50,50);
 	ball.addImage(loadImage("/images/ball.png"));
 	ball.scale = .1;
@@ -143,7 +168,7 @@ function dropBall()
 	ball.restitution = .74;
 	ball.setCollider('circle', 0, 0, 120);
 	//ball.debug = true;
-	balls.add(ball);
+	yourBalls.add(ball);
 }
 
 function setCamera(x,y,zoom)

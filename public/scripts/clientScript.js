@@ -6,7 +6,7 @@ io.on('connect', function(){
 
 io.on('physics', function(msg)
 {
-	loadOtherBalls();
+	loadOtherBalls(msg);
 });
 /*
 io.on('system', function(msg)
