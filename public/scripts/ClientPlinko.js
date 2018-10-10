@@ -83,12 +83,17 @@ function setup()
 	//dropEnd.debug = true;
 
 	setCamera(0,0,.8);
+
+	setInterval(function(){
+		sendBallsToServer();
+	}, 250);
 }
 
 function draw()
 {
 	background(75, 75, 75);
 
+	//gravity
 	for(var i=0; i<yourBalls.length; i++)
 	{
 		yourBalls.get(i).addSpeed(.1,90);
@@ -110,6 +115,7 @@ function draw()
 	theirBalls.overlap(dropEnd,function(){
 		this.remove();
 	});
+
 	drawSprites();
 }
 
@@ -128,17 +134,30 @@ function addball(x,y,velocityX,velocityY)
 
 function loadOtherBalls(balls)
 {
-	serverBalls = balls;
 	while(theirBalls[0] !== undefined)
 	{
     theirBalls[0].remove();
 	}
-	for(var i=0; i<serverBalls.length; i++)
+	for(var i=0; i<balls.length; i++)
 	{
-		addball(serverBalls[i].x,serverBalls[i].y,serverBalls[i].velocityX,serverBalls[i].velocityY);
+		addball(balls[i].x,balls[i].y,balls[i].velocityX,balls[i].velocityY);
 	}
 }
 
+function sendBallsToServer()
+{
+	if(yourBalls.length > 0)
+	{
+		var myBalls = [];
+		for(var i=0; i < yourBalls.length; i++)
+		{
+			myBalls.push({x:yourBalls.get(i).position.x, y:yourBalls.get(i).position.y ,velocityX:yourBalls.get(i).velocity.x, velocityY:yourBalls.get(i).velocity.y});
+		}
+		io.emit('physics',myBalls);
+	}
+}
+
+//a p5js function
 function mouseClicked()
 {
 	checkForDrop();
@@ -153,6 +172,7 @@ function checkForDrop()
 			if(camera.mouseY/camera.zoom >= dropStart.position.y - dropStart.height/2 && camera.mouseY/camera.zoom <= dropStart.position.y + dropStart.height/2)
 			{
 				dropBall();
+				//sendBallsToServer();
 				lastDrop = [camera.mouseX/camera.zoom,camera.mouseY/camera.zoom];
 			}
 		}

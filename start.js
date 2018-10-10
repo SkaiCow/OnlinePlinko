@@ -39,11 +39,9 @@ server.listen(80, function()
 
 io = require('socket.io')(server);
 
-var balls = [{x:0,y:-350,velocityX:0,velocityY:0}];
 setInterval(function(){
-	balls[0].x = balls[0].x + 5;
-	io.emit('physics',balls);
-}, 1000);
+	GameManager.updateAllBalls();
+}, 500);
 
 io.on('connection', function(client)
 {
@@ -51,7 +49,6 @@ io.on('connection', function(client)
 	SystemManager.addConnection(client);
 	SystemManager.updateUser(client);
 	//handle how messages come in
-
 	client.on('message', function(msg)
 	{
    	//send messages to where they need to be
@@ -67,8 +64,9 @@ io.on('connection', function(client)
 			break;
 		}
 	});
+
 	client.on('physics',function(msg){
-		GameManager.updateMyBalls(client,msg);
+		GameManager.updateMyBalls(client.id,msg);
 	});
 
   client.on('close', function(reasonCode, description)

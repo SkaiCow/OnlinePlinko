@@ -3,19 +3,35 @@ var listOfBalls = [];
 
 module.exports = class GameManager
 {
-	static updateMyBalls(client,msg)
+	static updateMyBalls(id,msg)
 	{
-		listOfBalls.forEach(function(ball,index){
-			if(ball.player === client)
-				listOfBalls.splice(index,1);
-		});
+		if(listOfBalls.length > 0)
+			for(var i=listOfBalls.length-1; i>=0; i--)
+				if(listOfBalls[i].player == id)
+					listOfBalls.splice(i,1);
 		msg.forEach(function(ball){
+			ball.player = id;
 			listOfBalls.push(ball);
 		});
-		console.log("some updated the balls: "+listOfBalls);
+		//console.log(listOfBalls[0].player+" updated their balls, the list is now " + listOfBalls.length);
 	}
+
 	static updateAllBalls()
 	{
-		io.emit('physics',listOfBalls);
+		var clients = SystemManager.getAllUsers();
+		if(clients.length > 1 && listOfBalls.length > 0)
+		{
+			clients.forEach(function(user){
+				var list = [];
+				listOfBalls.forEach(function(ball){
+					if(ball.player != user.id)
+					{
+						list.push(ball);
+						console.log("this should only go off once for one ball");
+					}
+				});
+				user.emit('physics',list);
+			});
+		}
 	}
 }
