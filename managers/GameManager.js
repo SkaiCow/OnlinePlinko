@@ -27,7 +27,6 @@ module.exports = class GameManager
 					if(ball.player != user.id)
 					{
 						list.push(ball);
-						console.log("this should only go off once for one ball");
 					}
 				});
 				user.emit('physics',list);

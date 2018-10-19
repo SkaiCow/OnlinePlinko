@@ -15,12 +15,15 @@ var dropEnd;
 
 var lastDrop = [];
 
+var ballImage;
+
 function preload()
 {
 	yourBalls = new Group();
 	theirBalls = new Group();
 	pegs = new Group();
 	pockets = new Group();
+	ballImage = loadImage("/images/ball.png");
 }
 
 function setup()
@@ -77,7 +80,7 @@ function setup()
 	dropStart = createSprite(8,-348,1040,120);
 	dropStart.shapeColor = color('rgba(0,0,0,0)');
 
-	dropEnd = createSprite(8,400,1060,20);
+	dropEnd = createSprite(8,410,1060,20);
 	dropEnd.setCollider('rectangle',0,0,dropEnd.width,dropEnd.height);
 	dropEnd.shapeColor = color('rgba(0,0,0,0)');
 	//dropEnd.debug = true;
@@ -86,7 +89,7 @@ function setup()
 
 	setInterval(function(){
 		sendBallsToServer();
-	}, 250);
+	}, 10);
 }
 
 function draw()
@@ -122,7 +125,14 @@ function draw()
 function addball(x,y,velocityX,velocityY)
 {
 	var ball = createSprite(x,y,50,50);
-	ball.addImage(loadImage("/images/ball.png"));
+	ball.draw = function()
+	{
+		push();
+			fill(200,50,10);
+			ellipse(0, 0, 275);
+		pop();
+		loadImage("/images/ball.png");
+	};
 	ball.scale = .1;
 	ball.mass = ball.scale;
 	ball.restitution = .74;
@@ -134,27 +144,30 @@ function addball(x,y,velocityX,velocityY)
 
 function loadOtherBalls(balls)
 {
-	while(theirBalls[0] !== undefined)
-	{
-    theirBalls[0].remove();
-	}
 	for(var i=0; i<balls.length; i++)
 	{
-		addball(balls[i].x,balls[i].y,balls[i].velocityX,balls[i].velocityY);
+		if(i < theirBalls.length)
+		{
+			var ball = theirBalls.get(i);
+			ball.position.x = balls[i].x;
+			ball.position.y = balls[i].y;
+			ball.setVelocity(balls[i].velocityX,balls[i].velocityY);
+		}
+		else
+		{
+			addball(balls[i].x,balls[i].y,balls[i].velocityX,balls[i].velocityY);
+		}
 	}
 }
 
 function sendBallsToServer()
 {
-	if(yourBalls.length > 0)
+	var myBalls = [];
+	for(var i=0; i < yourBalls.length; i++)
 	{
-		var myBalls = [];
-		for(var i=0; i < yourBalls.length; i++)
-		{
-			myBalls.push({x:yourBalls.get(i).position.x, y:yourBalls.get(i).position.y ,velocityX:yourBalls.get(i).velocity.x, velocityY:yourBalls.get(i).velocity.y});
-		}
-		io.emit('physics',myBalls);
+		myBalls.push({x:yourBalls.get(i).position.x, y:yourBalls.get(i).position.y ,velocityX:yourBalls.get(i).velocity.x, velocityY:yourBalls.get(i).velocity.y});
 	}
+	io.emit('physics',myBalls);
 }
 
 //a p5js function
@@ -182,7 +195,14 @@ function checkForDrop()
 function dropBall()
 {
 	var ball = createSprite((camera.mouseX/camera.zoom),(camera.mouseY/camera.zoom),50,50);
-	ball.addImage(loadImage("/images/ball.png"));
+	ball.draw = function()
+	{
+		push();
+			fill(200,50,10);
+			ellipse(0, 0, 275);
+		pop();
+		image(ballImage,0,0);
+	};
 	ball.scale = .1;
 	ball.mass = ball.scale;
 	ball.restitution = .74;

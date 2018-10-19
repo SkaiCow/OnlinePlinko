@@ -41,7 +41,7 @@ io = require('socket.io')(server);
 
 setInterval(function(){
 	GameManager.updateAllBalls();
-}, 500);
+}, 50);
 
 io.on('connection', function(client)
 {
