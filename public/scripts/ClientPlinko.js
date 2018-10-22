@@ -2,6 +2,7 @@ var lastWindowHeight;
 
 //this variable gets updated by the server
 var serverBalls = [];
+var myColor;
 
 //groups of sprites that are your balls and other peoples balls
 var yourBalls;
@@ -14,8 +15,9 @@ var dropStart;
 var dropEnd;
 
 var lastDrop = [];
-
 var ballImage;
+
+var gravity = .1;
 
 function preload()
 {
@@ -23,6 +25,7 @@ function preload()
 	theirBalls = new Group();
 	pegs = new Group();
 	pockets = new Group();
+
 	ballImage = loadImage("/images/ball.png");
 }
 
@@ -99,11 +102,11 @@ function draw()
 	//gravity
 	for(var i=0; i<yourBalls.length; i++)
 	{
-		yourBalls.get(i).addSpeed(.1,90);
+		yourBalls.get(i).addSpeed(gravity,90);
 	}
 	for(var i=0; i<theirBalls.length; i++)
 	{
-		theirBalls.get(i).addSpeed(.1,90);
+		theirBalls.get(i).addSpeed(gravity,90);
 	}
 
 	yourBalls.bounce(pegs);
@@ -122,13 +125,13 @@ function draw()
 	drawSprites();
 }
 
-function addball(x,y,velocityX,velocityY)
+function addball(x,y,velocityX,velocityY,color)
 {
 	var ball = createSprite(x,y,50,50);
 	ball.draw = function()
 	{
 		push();
-			fill(200,50,10);
+			fill(color[0,color[1],color[2]]);
 			ellipse(0, 0, 275);
 		pop();
 		loadImage("/images/ball.png");
@@ -155,7 +158,7 @@ function loadOtherBalls(balls)
 		}
 		else
 		{
-			addball(balls[i].x,balls[i].y,balls[i].velocityX,balls[i].velocityY);
+			addball(balls[i].x,balls[i].y,balls[i].velocityX,balls[i].velocityY,balls[i].color);
 		}
 	}
 }
@@ -165,9 +168,9 @@ function sendBallsToServer()
 	var myBalls = [];
 	for(var i=0; i < yourBalls.length; i++)
 	{
-		myBalls.push({x:yourBalls.get(i).position.x, y:yourBalls.get(i).position.y ,velocityX:yourBalls.get(i).velocity.x, velocityY:yourBalls.get(i).velocity.y});
+		myBalls.push({type:'physics', x:yourBalls.get(i).position.x, y:yourBalls.get(i).position.y ,velocityX:yourBalls.get(i).velocity.x, velocityY:yourBalls.get(i).velocity.y});
 	}
-	io.emit('physics',myBalls);
+	io.emit('game',myBalls);
 }
 
 //a p5js function
@@ -198,7 +201,7 @@ function dropBall()
 	ball.draw = function()
 	{
 		push();
-			fill(200,50,10);
+			fill(myColor[0],myColor[1],myColor[2]);
 			ellipse(0, 0, 275);
 		pop();
 		image(ballImage,0,0);
@@ -209,6 +212,11 @@ function dropBall()
 	ball.setCollider('circle', 0, 0, 120);
 	//ball.debug = true;
 	yourBalls.add(ball);
+}
+
+function myServerColor(msg)
+{
+	myColor = msg.color;
 }
 
 function setCamera(x,y,zoom)

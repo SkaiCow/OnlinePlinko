@@ -1,9 +1,9 @@
 var listOfBalls = [];
-//epected ball object {player : client, x : ballX, y : ballY, velocityX : ballVX, velocityY : ballVY}
+//epected ball object {player : id, x : ballX, y : ballY, velocityX : ballVX, velocityY : ballVY, color:[r,g,b]}
 
 module.exports = class GameManager
 {
-	static updateMyBalls(id,msg)
+	static updateMyBalls(id,msg,color)
 	{
 		if(listOfBalls.length > 0)
 			for(var i=listOfBalls.length-1; i>=0; i--)
@@ -11,6 +11,7 @@ module.exports = class GameManager
 					listOfBalls.splice(i,1);
 		msg.forEach(function(ball){
 			ball.player = id;
+			ball.color = color;
 			listOfBalls.push(ball);
 		});
 		//console.log(listOfBalls[0].player+" updated their balls, the list is now " + listOfBalls.length);
@@ -32,5 +33,10 @@ module.exports = class GameManager
 				user.emit('physics',list);
 			});
 		}
+	}
+
+	static sendColor(client)
+	{
+		client.emit('game',{type:'color', color:client.color});
 	}
 }

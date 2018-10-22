@@ -4,9 +4,15 @@ io.on('connect', function(){
 	console.log("hey i have connected to the server");
 });
 
-io.on('physics', function(msg)
+io.on('game', function(msg)
 {
-	loadOtherBalls(msg);
+	switch(msg.type)
+	{
+		case 'physics': loadOtherBalls(msg);
+		break;
+		case 'color': myServerColor(msg);
+	}
+
 });
 /*
 io.on('system', function(msg)

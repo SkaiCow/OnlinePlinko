@@ -46,14 +46,14 @@ setInterval(function(){
 io.on('connection', function(client)
 {
   console.log('Connection accepted.');
+	client.color = SystemManager.getRandColor();
 	SystemManager.addConnection(client);
 	SystemManager.updateUser(client);
+	GameManager.sendColor(client)
 	//handle how messages come in
 	client.on('message', function(msg)
 	{
-   	//send messages to where they need to be
-		console.log(msg);
-		MessangerManager.sendToAll(msg);
+   	//send chat messages to where they need to be
   });
 	client.on('system', function(msg){
 		console.log(msg);
@@ -65,8 +65,12 @@ io.on('connection', function(client)
 		}
 	});
 
-	client.on('physics',function(msg){
-		GameManager.updateMyBalls(client.id,msg);
+	client.on('game',function(msg){
+		switch(msg.type)
+		{
+			case 'physics': GameManager.updateMyBalls(client.id,msg);
+			break;
+		}
 	});
 
   client.on('close', function(reasonCode, description)

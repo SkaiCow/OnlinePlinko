@@ -28,4 +28,15 @@ module.exports = class SystemManager
 		io.emit('system', obj);
 		io.emit('message', "The Background Color has been changed.")
 	}
+
+	static getRandColor()
+	{
+		var colorvalt = 255;
+		var R = Math.random() * colorvalt;
+		colorvalt = colorvalt - R;
+		var G = Math.random() * colorvalt;
+		colorvalt = colorvalt - G;
+		var B = Math.random() * colorvalt;
+		return [R,G,B];
+	}
 }
