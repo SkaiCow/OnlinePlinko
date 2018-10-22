@@ -68,7 +68,7 @@ io.on('connection', function(client)
 	client.on('game',function(msg){
 		switch(msg.type)
 		{
-			case 'physics': GameManager.updateMyBalls(client.id,msg);
+			case 'physics': GameManager.updateMyBalls(client.id,msg.values,client.color);
 			break;
 		}
 	});

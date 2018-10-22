@@ -30,7 +30,7 @@ module.exports = class GameManager
 						list.push(ball);
 					}
 				});
-				user.emit('physics',list);
+				user.emit('game',{type:'physics', values:list});
 			});
 		}
 	}

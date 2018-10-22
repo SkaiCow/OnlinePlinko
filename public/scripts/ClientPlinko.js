@@ -131,10 +131,10 @@ function addball(x,y,velocityX,velocityY,color)
 	ball.draw = function()
 	{
 		push();
-			fill(color[0,color[1],color[2]]);
+			fill(color[0],color[1],color[2]);
 			ellipse(0, 0, 275);
 		pop();
-		loadImage("/images/ball.png");
+		image(ballImage,0,0);
 	};
 	ball.scale = .1;
 	ball.mass = ball.scale;
@@ -168,9 +168,9 @@ function sendBallsToServer()
 	var myBalls = [];
 	for(var i=0; i < yourBalls.length; i++)
 	{
-		myBalls.push({type:'physics', x:yourBalls.get(i).position.x, y:yourBalls.get(i).position.y ,velocityX:yourBalls.get(i).velocity.x, velocityY:yourBalls.get(i).velocity.y});
+		myBalls.push({x:yourBalls.get(i).position.x, y:yourBalls.get(i).position.y ,velocityX:yourBalls.get(i).velocity.x, velocityY:yourBalls.get(i).velocity.y});
 	}
-	io.emit('game',myBalls);
+	io.emit('game',{type:'physics', values:myBalls});
 }
 
 //a p5js function

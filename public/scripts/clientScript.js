@@ -8,7 +8,8 @@ io.on('game', function(msg)
 {
 	switch(msg.type)
 	{
-		case 'physics': loadOtherBalls(msg);
+		case 'physics': loadOtherBalls(msg.values);
+		console.log(msg.values);
 		break;
 		case 'color': myServerColor(msg);
 	}
