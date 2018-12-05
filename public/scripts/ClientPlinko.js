@@ -3,6 +3,7 @@ var lastWindowHeight;
 //this variable gets updated by the server
 var serverBalls = [];
 var myColor;
+var scoreBoard = [];
 
 //groups of sprites that are your balls and other peoples balls
 var yourBalls;
@@ -15,8 +16,18 @@ var dropStart;
 var dropEnd;
 
 var lastDrop = [];
-var ballImage;
 
+//images
+var ballImage;
+var point100Image;
+var point200Image;
+var point300Image;
+var point500Image;
+var point0Image;
+
+//options: 100, 200, 300, 500, 0
+//var pointSlots = ["100","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0"];
+var pointSlots = ["100","0","100","200","0","300","100","0","500","0","100","300","0","200","100","0","100"];
 var gravity = .1;
 
 function preload()
@@ -27,6 +38,11 @@ function preload()
 	pockets = new Group();
 
 	ballImage = loadImage("/images/ball.png");
+	point100Image = loadImage("/images/points-100.png");
+	point200Image = loadImage("/images/points-200.png");
+	point300Image = loadImage("/images/points-300.png");
+	point500Image = loadImage("/images/points-500.png");
+	point0Image = loadImage("/images/points-0.png");
 }
 
 function setup()
@@ -83,23 +99,50 @@ function setup()
 	dropStart = createSprite(8,-348,1040,120);
 	dropStart.shapeColor = color('rgba(0,0,0,0)');
 
-	dropEnd = createSprite(8,410,1060,20);
-	dropEnd.setCollider('rectangle',0,0,dropEnd.width,dropEnd.height);
-	dropEnd.shapeColor = color('rgba(0,0,0,0)');
+	dropEnd = createSprite(7,370,1065,75);
+	dropEnd.draw = function(){
+		for(var spot=0; spot<pointSlots.length; spot++)
+		{
+			switch(pointSlots[spot])
+			{
+				case '0':image(point0Image,-439+55*spot,0,46,73);
+				break;
+				case '100':image(point100Image,-439+55*spot,0,46,73);
+				break;
+				case '200':image(point200Image,-439+55*spot,0,46,73);
+				break;
+				case '300':image(point300Image,-439+55*spot,0,46,73);
+				break;
+				case '500':image(point500Image,-439+55*spot,0,46,73);
+				break;
+			}
+		}
+		image(point0Image,-500,0,55,73);
+		image(point0Image,500,0,55,73);
+	};
+	dropEnd.setCollider('rectangle',0,dropEnd.height/2,dropEnd.width,15);
 	//dropEnd.debug = true;
 
-	setCamera(0,0,.8);
+	useQuadTree(true);
 
+	setCamera(0,0,.8);
 	setInterval(function(){
-		sendBallsToServer();
+		sendBallsToServer(yourBalls);
 	}, 10);
+	window.onunload = popup;
+}
+
+
+function popup() {
+	var empty = new Group();
+	sendBallsToServer(empty);
+  alert('tab changed');
 }
 
 function draw()
 {
 	background(75, 75, 75);
 
-	//gravity
 	for(var i=0; i<yourBalls.length; i++)
 	{
 		yourBalls.get(i).addSpeed(gravity,90);
@@ -113,6 +156,7 @@ function draw()
 	yourBalls.bounce(yourBalls);
 	yourBalls.bounce(pockets);
 	yourBalls.overlap(dropEnd,function(){
+		scoreBall(this);
 		this.remove();
 	});
 	theirBalls.bounce(pegs);
@@ -121,6 +165,22 @@ function draw()
 	theirBalls.overlap(dropEnd,function(){
 		this.remove();
 	});
+
+	//draw score board
+	scoreBoard.forEach(function(player, i){
+		push();
+			translate(-740,-350+50*i);
+			fill(myColor[0],myColor[1],myColor[2]);
+			rect(0,0,200,50,10);
+			fill(255,255,255);
+			textSize(20);
+			textAlign(LEFT,TOP);
+			textStyle(BOLD);
+			text('SkaiCow',10,4);
+			text("Score: "+player.score,10,25);
+		pop();
+	});
+
 
 	drawSprites();
 }
@@ -163,12 +223,12 @@ function loadOtherBalls(balls)
 	}
 }
 
-function sendBallsToServer()
+function sendBallsToServer(list)
 {
 	var myBalls = [];
-	for(var i=0; i < yourBalls.length; i++)
+	for(var i=0; i < list.length; i++)
 	{
-		myBalls.push({x:yourBalls.get(i).position.x, y:yourBalls.get(i).position.y ,velocityX:yourBalls.get(i).velocity.x, velocityY:yourBalls.get(i).velocity.y});
+		myBalls.push({x:list.get(i).position.x, y:list.get(i).position.y ,velocityX:list.get(i).velocity.x, velocityY:list.get(i).velocity.y});
 	}
 	io.emit('game',{type:'physics', values:myBalls});
 }
@@ -188,7 +248,7 @@ function checkForDrop()
 			if(camera.mouseY/camera.zoom >= dropStart.position.y - dropStart.height/2 && camera.mouseY/camera.zoom <= dropStart.position.y + dropStart.height/2)
 			{
 				dropBall();
-				//sendBallsToServer();
+				io.emit('game',{type:'score',value:-1});
 				lastDrop = [camera.mouseX/camera.zoom,camera.mouseY/camera.zoom];
 			}
 		}
@@ -214,9 +274,39 @@ function dropBall()
 	yourBalls.add(ball);
 }
 
+function scoreBall(ball)
+{
+	var scorePos = Math.floor((ball.position.x + 460)/55);
+	switch(pointSlots[scorePos])
+	{
+		case "100":io.emit('game',{type:'score',value:100});
+		break;
+		case "200":io.emit('game',{type:'score',value:200});
+		break;
+		case "300":io.emit('game',{type:'score',value:300});
+		break;
+		case "500":io.emit('game',{type:'score',value:500});
+		break;
+	}
+}
+
 function myServerColor(msg)
 {
 	myColor = msg.color;
+}
+
+function updateScore(msg)
+{
+	var found = false;
+	scoreBoard.forEach(function(player){
+		if(player.id == msg.player)
+		{
+			player.score = msg.score.toFixed(2);
+			found = true;
+		}
+	});
+	if(!found)
+		scoreBoard.push({id:msg.player,score:msg.score.toFixed(2)});
 }
 
 function setCamera(x,y,zoom)

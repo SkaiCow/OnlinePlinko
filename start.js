@@ -1,4 +1,3 @@
-
 SocialManager = require("./managers/SocialManager");
 MessangerManager = require("./managers/MessangerManager");
 SystemManager = require("./managers/SystemManager");
@@ -9,6 +8,11 @@ var Express = require('express');
 var bodyParser = require('body-parser');
 var app = Express();
 
+//Matter engine stuff
+
+GameManager.BuildGame();
+
+//HTTP handler stuff
 
 app.use(Express.static('./public'));
 
@@ -39,24 +43,18 @@ server.listen(80, function()
 
 io = require('socket.io')(server);
 
-setInterval(function(){
-	GameManager.updateAllBalls();
-}, 50);
-
 io.on('connection', function(client)
 {
   console.log('Connection accepted.');
-	client.color = SystemManager.getRandColor();
+	//client.color = SystemManager.getRandColor();
 	SystemManager.addConnection(client);
-	SystemManager.updateUser(client);
-	GameManager.sendColor(client)
 	//handle how messages come in
 	client.on('message', function(msg)
 	{
    	//send chat messages to where they need to be
   });
+
 	client.on('system', function(msg){
-		console.log(msg);
 		command = msg.split(" ");
 		switch(command[0])
 		{
@@ -68,13 +66,13 @@ io.on('connection', function(client)
 	client.on('game',function(msg){
 		switch(msg.type)
 		{
-			case 'physics': GameManager.updateMyBalls(client.id,msg.values,client.color);
+			case 'click': GameManager.dropBall(msg.values);
 			break;
 		}
 	});
 
-  client.on('close', function(reasonCode, description)
+  client.on('disconnect', function(reason)
 	{
-   	console.log((new Date()) + ' Peer disconnected.');
+   	console.log('Peer disconnected. Reason: '+reason);
   });
 });

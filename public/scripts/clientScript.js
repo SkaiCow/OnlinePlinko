@@ -8,10 +8,15 @@ io.on('game', function(msg)
 {
 	switch(msg.type)
 	{
-		case 'physics': loadOtherBalls(msg.values);
-		console.log(msg.values);
+		case 'balls': loadOtherBalls(msg.values);
 		break;
+		case 'objects': listOfObjects = msg.values;
+		break;
+		/*
 		case 'color': myServerColor(msg);
+		break;
+		case 'score': updateScore(msg);
+		break;*/
 	}
 
 });
