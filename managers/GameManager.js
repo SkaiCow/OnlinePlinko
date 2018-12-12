@@ -6,6 +6,7 @@ var flatRate = 100;
 var Engine = Matter.Engine,
 		World = Matter.World,
 		Bodies = Matter.Bodies;
+		Body = Matter.Body
 		Composite = Matter.Composite;
 var plinkoWorld;
 
@@ -48,8 +49,8 @@ module.exports = class GameManager
 
 	static dropBall(msg)
 	{
-		var options = {friction:0,restitution:.9};
-		var ball = Bodies.circle(msg.x,msg.y,10,options);
+		var options = {friction:0,restitution:.8};
+		var ball = Bodies.circle(msg.x,msg.y,8,options);
 		ball.rotation = 90;
 		World.add(plinkoWorld, ball);
 	}
@@ -94,10 +95,47 @@ function sendAllBalls()
 function buildWorld()
 {
 	//make objects of options for presets
-	var staticBody = {isStatic:true,friction:0,restitution:.9};
+	var staticBody = {isStatic:true,friction:0,restitution:.8};
 	//write all matter js bodies here
 	var allBodies = [];
-	allBodies.push(Bodies.circle(0,0,50));
-	allBodies.push(Bodies.rectangle(0,200,500,50,staticBody));
+	allBodies.push(Bodies.rectangle(0,350,800,20,staticBody));
+	allBodies.push(Bodies.rectangle(-390,10,20,700,staticBody));
+	allBodies.push(Bodies.rectangle(390,10,20,700,staticBody));
+
+	var horSpacing = 31;
+	var verSpacing = 55;
+	for(var y = 0; y < 10; y++)
+	{
+		for(var x = 0; x < 25; x++)
+		{
+			if(y%2==0)
+			{
+				if(x==24)
+				{
+					var body = Bodies.rectangle(-363+(horSpacing*x),-250+(verSpacing*y),10,10,{isStatic:true,friction:0,restitution:.8,rotation:45});
+					Body.rotate(body,45)
+					allBodies.push(body);
+				}
+				else
+				{
+					allBodies.push(Bodies.circle(-363+(horSpacing*x),-250+(verSpacing*y),5,staticBody));
+				}
+			}
+			else
+			{
+				if(x==0)
+				{
+					var body = Bodies.rectangle(-380+(horSpacing*x),-250+(verSpacing*y),10,10,{isStatic:true,friction:0,restitution:.8,rotation:45});
+					Body.rotate(body,45)
+					allBodies.push(body);
+				}
+				else
+				{
+					allBodies.push(Bodies.circle(-380+(horSpacing*x),-250+(verSpacing*y),5,staticBody));
+				}
+			}
+		}
+	}
+
 	World.add(plinkoWorld, allBodies);
 }

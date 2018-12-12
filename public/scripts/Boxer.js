@@ -13,8 +13,9 @@ Boxer.prototype.show = function()
 	stroke('rgb(0,255,0)');
 	strokeWeight(2);
 	fill(51);
+	translate(this.x,this.y);
 	rotate(this.rotation);
-	rect(this.x,this.y,this.width,this.height);
+	rect(0,0,this.width,this.height);
 	pop();
 }
 
@@ -32,7 +33,8 @@ Circlely.prototype.show = function()
 	stroke('rgb(0,255,0)');
 	strokeWeight(2);
 	fill(51);
+	translate(this.x,this.y);
 	rotate(this.rotation);
-	ellipse(this.x,this.y,this.radius*2);
+	ellipse(0,0,this.radius*2);
 	pop();
 }
