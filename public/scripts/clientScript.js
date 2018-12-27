@@ -8,17 +8,21 @@ io.on('game', function(msg)
 {
 	switch(msg.type)
 	{
-		case 'balls': loadOtherBalls(msg.values);
+		case 'objects': loadOtherBalls(msg.values);
+			updateScoreList(msg.score);
 		break;
 		case 'objects': listOfObjects = msg.values;
 		break;
-		/*
-		case 'color': myServerColor(msg);
-		break;
-		case 'score': updateScore(msg);
-		break;*/
 	}
 
+});
+io.on('score', function(msg){
+	switch(msg.type)
+	{
+		case 'scored':
+		listOfParticalSystems.push(new ParticalSystem('star',createVector(-332+(30.2*msg.slot),320),{color:color(180,180,0),lifeTime:50}));
+		break;
+	}
 });
 /*
 io.on('system', function(msg)

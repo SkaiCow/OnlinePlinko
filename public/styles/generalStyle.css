@@ -1,0 +1,27 @@
+body
+{
+	background-color: rgb(75, 75, 75);
+	overflow: hidden;
+}
+
+.GameCanvasTall
+{
+	width:100% !important;
+	height:auto !important;
+	position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%)
+}
+
+.GameCanvasWide
+{
+	width:auto !important;
+	height:100% !important;
+	position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%)
+}

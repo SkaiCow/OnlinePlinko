@@ -46,8 +46,9 @@ io = require('socket.io')(server);
 io.on('connection', function(client)
 {
   console.log('Connection accepted.');
-	//client.color = SystemManager.getRandColor();
+	client.color = SystemManager.getRandColor();
 	SystemManager.addConnection(client);
+	GameManager.addPlayer(client);
 	//handle how messages come in
 	client.on('message', function(msg)
 	{
@@ -66,7 +67,7 @@ io.on('connection', function(client)
 	client.on('game',function(msg){
 		switch(msg.type)
 		{
-			case 'click': GameManager.dropBall(msg.values);
+			case 'click': GameManager.dropBall(msg.values,client);
 			break;
 		}
 	});

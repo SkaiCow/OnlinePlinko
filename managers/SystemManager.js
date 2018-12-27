@@ -33,9 +33,9 @@ module.exports = class SystemManager
 	{
 		var colorvalt = 255;
 		var R = Math.random() * colorvalt;
-		colorvalt = colorvalt - R;
+		//colorvalt = colorvalt - R;
 		var G = Math.random() * colorvalt;
-		colorvalt = colorvalt - G;
+		//colorvalt = colorvalt - G;
 		var B = Math.random() * colorvalt;
 		return [R,G,B];
 	}
