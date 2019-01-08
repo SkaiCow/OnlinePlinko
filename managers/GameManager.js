@@ -1,8 +1,7 @@
 var Matter = require('matter-js');
 var GameUtility = require('../utility/GameUtil');
 
-//var scoreList = ["","","","","","","","","","","","","","","","","","","","",""];
-var scoreList = ["100","100","100","100","100","100","100","100","100","100","100","100","100","100","100","100","100","100","100","100","100","100","100"];
+var scoreList = ["","","","","","","","","","","","","","","","","","","","","","",""];
 var playerScores = {};
 var gameTax = .15;
 var flatRate = 100;
@@ -19,6 +18,7 @@ var plinkoWorld;
 
 module.exports = class GameManager
 {
+
 	static BuildGame()
 	{
 		var engOptions = {};
@@ -28,19 +28,7 @@ module.exports = class GameManager
 		plinkoWorld = plinkoEngine.world;
 		plinkoWorld.gravity.y = .75;
 		World.add(plinkoWorld, buildWorld());
-		scoreList.forEach(function(spot,i){
-			var rand = Math.random();
-			if(rand < .40)
-				scoreList[i] = "100";
-			else if(rand < .60)
-				scoreList[i] = "0";
-			else if(rand < .85)
-				scoreList[i] = "200";
-			else if(rand < .95)
-				scoreList[i] = "300";
-			else
-				scoreList[i] = "500";
-		});
+		mixer();
 		setInterval(function() {
 			Engine.update(plinkoEngine, 1000 / 60);
 			sendAllObjects(Composite.allBodies(plinkoWorld));
@@ -76,11 +64,38 @@ module.exports = class GameManager
 	{
 		playerScores[client.id] = startingMoney;
 	}
+
+	static mixScoreSlots()
+	{
+		mixer();
+	}
 }
 
-// TODO:
-//subtract score when dropping ball
-//
+function mixer()
+{
+	scoreList.setAll("");
+	scoreList[parseInt(Math.random()*23)] = "mix";
+	for(var i=0; i<23; i++)
+	{
+		if(scoreList[i] == "")
+		{
+			var rand = Math.random();
+			if(rand < .40)
+				scoreList[i] = "100";
+			else if(rand < .60)
+				scoreList[i] = "0";
+			else if(rand < .80)
+				scoreList[i] = "200";
+			else if(rand < .90)
+				scoreList[i] = "300";
+			else if(rand < .95)
+				scoreList[i] = "500";
+			else
+				scoreList[i] = "mix";
+		}
+	}
+	console.log(scoreList);
+}
 
 function updateMyScore(clientID, sco)
 {
@@ -212,7 +227,10 @@ function checkBallScore(collisionStart,collisions,collisionEnd)
 				}
 				else
 				{
-					updateMyScore(collidePoint.bodyB.playerID,parseInt(scoreList[pocketNum]));
+					if(scoreList[pocketNum] == 'mix')
+						mixer();
+					else
+						updateMyScore(collidePoint.bodyB.playerID,parseInt(scoreList[pocketNum]));
 					io.emit('score',{type:'scored',slot:pocketNum});
 				}
 				World.remove(plinkoWorld,collidePoint.bodyB);
@@ -226,3 +244,10 @@ function checkBallScore(collisionStart,collisions,collisionEnd)
 		});
 	}
 }
+
+Array.prototype.setAll = function(v) {
+    var i, n = this.length;
+    for (i = 0; i < n; ++i) {
+        this[i] = v;
+    }
+};

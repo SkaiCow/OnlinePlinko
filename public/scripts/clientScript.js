@@ -11,8 +11,6 @@ io.on('game', function(msg)
 		case 'objects': loadOtherBalls(msg.values);
 			updateScoreList(msg.score);
 		break;
-		case 'objects': listOfObjects = msg.values;
-		break;
 	}
 
 });

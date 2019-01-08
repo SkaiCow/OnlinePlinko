@@ -8,12 +8,14 @@ var listOfScore = [];
 var listOfParticalSystems = [];
 
 //imgaes
-var ballImage;
-var point100Image;
-var point200Image;
-var point300Image;
-var point500Image;
-var point0Image;
+var ballImage,
+	point100Image,
+	point200Image,
+	point300Image,
+	point500Image,
+	point0Image,
+	dropPlinkoImage,
+	mixerImage;
 
 function preload()
 {
@@ -23,12 +25,21 @@ function preload()
 	point300Image = loadImage("/images/points-300.png");
 	point500Image = loadImage("/images/points-500.png");
 	point0Image = loadImage("/images/points-0.png");
+	dropPlinkoImage = loadImage("/images/PlinkoDrop.png");
+	mixerImage = loadImage("/images/mixer.png")
 }
 
 function setup()
 {
 	canvasElement = createCanvas(1300,800);
-	canvasElement.class("GameCanvasWide");
+	if(windowWidth/windowHeight > canvasElement.width/canvasElement.height)
+	{
+		canvasElement.class("GameCanvasWide");
+	}
+	else
+	{
+		canvasElement.class("GameCanvasTall");
+	}
 	lastWindowHeight = windowHeight;
 	lastMouseClick = createVector(0,0);
 	setCamera(0,0,1);
@@ -40,6 +51,10 @@ function setup()
 function draw()
 {
 	background(75, 75, 75);
+	push();
+		translate(0,-300);
+		image(dropPlinkoImage,0,0,750,70);
+	pop();
 	listOfBalls.forEach(function(body, i){
 		switch (body.type) {
 			case 'Circle Body':
@@ -91,6 +106,10 @@ function draw()
 				var score = new ScoreBox(-333+(horSpacing*i),317,25,48,point500Image);
 				score.show();
 			break;
+			case 'mix':
+				var score = new ScoreBox(-333+(horSpacing*i),317,25,48,mixerImage);
+				score.show();
+			break;
 		}
 	});
 	//those extra 0 point pockets that dont changed
@@ -128,8 +147,7 @@ function mouseClicked()
 	}
 	else
 	{
-		//listOfParticalSystems.push(new ParticalSystem('stop',createVector(camera.mouseX/camera.zoom,camera.mouseY/camera.zoom)));
-		listOfParticalSystems.push(new ParticalSystem('star',createVector(camera.mouseX/camera.zoom,camera.mouseY/camera.zoom),{color:color(180,180,0),lifeTime:50}));
+		listOfParticalSystems.push(new ParticalSystem('stop',createVector(camera.mouseX/camera.zoom,camera.mouseY/camera.zoom)));
 	}
 }
 
